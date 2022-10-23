@@ -1,9 +1,9 @@
-# Encriptar-passwords-con-PHP
+# Encriptar passwords con PHP
 #### Para encriptar la contraseña utilizaremos la función `password_hash()` de php, aquí puedes ver la documentación sobre la encriptación [PHP: password_hash](https://www.php.net/manual/en/function.password-hash.php).
 #### Para hacer la encriptación solo necesitaremos poner nuestra contraseña adentro de la funcion, por ejemplo: `password_hash($_POST['password'], PASSWORD_DEFAULT)`
 #### Nota: Tenga en cuenta que esta encriptación está diseñada para cambiar con el tiempo a medida que se agregan algoritmos nuevos y más fuertes a PHP. Por ese motivo, la longitud del resultado del uso de este identificador puede cambiar con el tiempo. Por lo tanto, se recomienda almacenar el resultado en una columna de la base de datos que pueda expandirse más allá de los 60 caracteres (255 caracteres sería una buena opción).
 
-## Parameters
+## Parametros
 
 ### Password
 La contraseña del usuario
@@ -22,22 +22,26 @@ Si se omite, se creará una sal aleatoria y se utilizará el costo predeterminad
 ## Ejemplo
 ```PHP
 <?php
-session_start(); // Inicializamos la sesión
-include_once("../m/SQLConexion.php"); // incluimos nuestra conexión a la base de datos
-$sql = new SQLConexion();
 $hashed_password = password_hash($_POST['password'], PASSWORD_DEFAULT); // Encriptamos la contraseña
-$rpta = $sql->obtenerResultadoID("CALL sp_crear_usuario('".$_POST['usuario'] ."','".$hashed_password ."',@_ID)");
+// Tu código adicional para insertar usuario
+```
+Nota: la variable `$hashed_password` tiene la contraseña encriptada, asegurate de que el campo en tu base de datos sea **mayor a 60 caracteres** (recomendado: `varchar(255)` )
+# Verificar la contraseña encriptada con php
+Para verificar la contraseña encriptada con la contraseña ingresada por el usuario utilzaremos la función `password_verify()` de php, aquí puedes ver la documentación sobre la encriptación [PHP: password_verify](https://www.php.net/manual/en/function.password-verify.php).
+## Parametros
 
-if ($rpta[0][0] > 0) {
-    // Código cuando la consulta se ejecute con exito
-    $response_array['status'] = 'completado';
-} elseif($rpta[0][0] == 0){
-    // Código cuando de un error
-    $response_array['status'] = 'error, correo registrado';
+### Password
+La contraseña del usuario recibida del formulario.
+
+### hash
+Contraseña almacenada previamente encriptada.
+## Ejemplo
+```PHP
+<?php
+$validar = password_verify(string $password, $hash);
+if($validar){
+// Si la contraseña es correcta
 }else{
-  // Código para cualquier otro error
-  $response_array['msg'] = 'Ha ocurrido un error interno.';
+// Credenciales invalidas
 }
-header('Content-type: application/json');
-echo json_encode($response_array);
 ```
